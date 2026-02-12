@@ -12,6 +12,9 @@ dora is a language-agnostic CLI that helps AI agents understand codebases by que
 dora init
 dora index
 
+# Let your AI agent set up dora integration automatically
+dora cookbook show agent-setup --format markdown
+
 # Query the codebase
 dora status              # Check index health
 dora map                 # Show packages and stats
@@ -105,6 +108,53 @@ Once configured, Claude will automatically:
 - Use `dora cycles` to detect architectural issues
 
 **Manual skill invocation:** Type `/dora` for quick reference of all commands.
+
+---
+
+## pi Integration
+
+[pi](https://github.com/badlogic/pi-mono) supports project-local extensions that auto-load from `.pi/extensions/`.
+
+### Setup
+
+1. **Initialize dora:**
+
+   ```bash
+   dora init
+   dora index
+   ```
+
+2. **Copy extensions to your project:**
+
+   dora ships with ready-to-use pi extensions. Copy them from the dora repository's `.pi/extensions/` directory:
+
+   ```bash
+   mkdir -p .pi/extensions
+   cp -r <dora-repo>/.pi/extensions/* .pi/extensions/
+   ```
+
+   This gives you:
+
+   - **`dora.ts`** - Lifecycle hooks: checks dora status on session start, runs `dora index` in background on shutdown
+   - **`plan-mode/`** - Read-only exploration mode with `/plan` command, Ctrl+Alt+P toggle, todo tracking, and automatic dora integration
+
+3. **Add dora skill (optional):**
+
+   ```bash
+   mkdir -p .pi/skills/dora
+   ln -s ../../../.dora/docs/SKILL.md .pi/skills/dora/SKILL.md
+   ```
+
+### pi Usage
+
+Once extensions are in place, pi will automatically:
+
+- Check dora initialization on session start
+- Run `dora index` in background on session shutdown
+- Make `/plan` command available for read-only code exploration
+- Steer plan mode to prefer dora commands over grep/find
+
+**Plan mode:** Type `/plan` or press Ctrl+Alt+P to toggle read-only exploration mode. In plan mode, dora commands are prioritized for code navigation and the agent creates numbered plans with progress tracking.
 
 ---
 
@@ -499,6 +549,8 @@ run dora complexity to find high-risk files
 ## Generic AI Agent Integration
 
 For AI agents and IDEs not listed above, dora provides standard integration files you can adapt.
+
+**Quickest path:** After `dora init`, run `dora cookbook show agent-setup --format markdown` and feed the output to your AI agent. It contains complete setup instructions for all supported agents.
 
 ### Setup
 

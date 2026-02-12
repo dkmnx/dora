@@ -223,16 +223,19 @@ import Layout from "../layouts/Layout.astro";
                 <p class="text-zinc-300 mb-4">
                     <strong
                         >→ See <a
-                            href="https://github.com/butttons/dora/blob/main/AGENTS.md"
+                            href="https://github.com/butttons/dora/blob/main/AGENTS_SETUP.md"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="text-blue-400 hover:underline">AGENTS.md</a
+                            class="text-blue-400 hover:underline">AGENTS_SETUP.md</a
                         > for complete integration guides</strong
                     > for:
                 </p>
                 <ul class="space-y-2 text-zinc-300 ml-4">
                     <li>
                         • <strong>Claude Code</strong> - Skills, hooks, auto-indexing
+                    </li>
+                    <li>
+                        • <strong>pi</strong> - Project-local extensions, plan mode
                     </li>
                     <li>
                         • <strong>OpenCode</strong> - Agent system integration
@@ -265,6 +268,13 @@ import Layout from "../layouts/Layout.astro";
                 </div>
                 <div>
                     <span class="text-zinc-500">$</span>
+                    <span class="text-zinc-300">dora cookbook show agent-setup --format markdown</span
+                    ><span class="text-zinc-500 ml-2"
+                        ># Get setup instructions for your agent</span
+                    >
+                </div>
+                <div>
+                    <span class="text-zinc-500">$</span>
                     <span class="text-zinc-300">dora status</span><span
                         class="text-zinc-500 ml-2"># Verify index is ready</span
                     >
@@ -276,6 +286,11 @@ import Layout from "../layouts/Layout.astro";
                     >
                 </div>
             </div>
+            <p class="text-zinc-400 text-sm mb-8">
+                <strong>Tip:</strong> After <code class="text-blue-300 bg-zinc-900/50 px-2 py-1 rounded">dora init</code>,
+                run <code class="text-blue-300 bg-zinc-900/50 px-2 py-1 rounded">dora cookbook show agent-setup --format markdown</code>
+                and feed it to your AI agent — it contains ready-to-use setup instructions for Claude Code, pi, OpenCode, Cursor, Windsurf, and more.
+            </p>
 
             <!-- Claude Code Integration -->
             <h3 class="text-xl font-semibold mb-4 text-blue-300">
@@ -1262,10 +1277,10 @@ dora index</code></pre>
                 <li>
                     <strong>AI Agent Integration:</strong>
                     <a
-                        href="https://github.com/butttons/dora/blob/main/AGENTS.md"
+                        href="https://github.com/butttons/dora/blob/main/AGENTS_SETUP.md"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="text-blue-400 hover:underline">AGENTS.md</a
+                        class="text-blue-400 hover:underline">AGENTS_SETUP.md</a
                     >
                     - Integration guides for Claude Code, OpenCode, Cursor, Windsurf
                 </li>
@@ -1297,6 +1312,16 @@ dora index</code></pre>
                         rel="noopener noreferrer"
                         class="text-blue-400 hover:underline"
                         >https://claude.ai/code</a
+                    >
+                </li>
+                <li>
+                    <strong>pi:</strong>
+                    <a
+                        href="https://github.com/badlogic/pi-mono"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-blue-400 hover:underline"
+                        >https://github.com/badlogic/pi-mono</a
                     >
                 </li>
             </ul>
