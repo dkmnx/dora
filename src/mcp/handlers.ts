@@ -1,6 +1,7 @@
 import { match } from "ts-pattern";
 import { adventure } from "../commands/adventure.ts";
 import { changes } from "../commands/changes.ts";
+import { classCommand } from "../commands/class.ts";
 import { complexity } from "../commands/complexity.ts";
 import { cookbookList, cookbookShow } from "../commands/cookbook.ts";
 import { coupling } from "../commands/coupling.ts";
@@ -11,6 +12,7 @@ import { docsSearch } from "../commands/docs/search.ts";
 import { docsShow } from "../commands/docs/show.ts";
 import { exports } from "../commands/exports.ts";
 import { file } from "../commands/file.ts";
+import { fn } from "../commands/fn.ts";
 import { graph } from "../commands/graph.ts";
 import { imports } from "../commands/imports.ts";
 import { index } from "../commands/index.ts";
@@ -25,12 +27,14 @@ import { refs } from "../commands/refs.ts";
 import { schema } from "../commands/schema.ts";
 import { status } from "../commands/status.ts";
 import { symbol } from "../commands/symbol.ts";
+import { smells } from "../commands/smells.ts";
 import { treasure } from "../commands/treasure.ts";
 
 export async function handleToolCall(
 	name: string,
-	args: Record<string, any>,
-): Promise<any> {
+	// MCP protocol delivers args as untyped JSON - no schema available at the boundary
+	args: Record<string, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+): Promise<unknown> {
 	return match(name)
 		.with("dora_init", async () => {
 			return await init({ language: args.language });
@@ -156,6 +160,37 @@ export async function handleToolCall(
 		.with("dora_docs_show", async () => {
 			return await docsShow(args.path, {
 				content: args.content,
+			});
+		})
+		.with("dora_fn", async () => {
+			return await fn({
+				path: args.path,
+				options: {
+					sort: args.sort,
+					minComplexity: args.minComplexity,
+					limit: args.limit,
+				},
+			});
+		})
+		.with("dora_class", async () => {
+			return await classCommand({
+				path: args.path,
+				options: {
+					sort: args.sort,
+					limit: args.limit,
+				},
+			});
+		})
+		.with("dora_smells", async () => {
+			return await smells({
+				path: args.path,
+				options: {
+					complexityThreshold: args.complexityThreshold,
+					locThreshold: args.locThreshold,
+					paramsThreshold: args.paramsThreshold,
+					methodsThreshold: args.methodsThreshold,
+					propertiesThreshold: args.propertiesThreshold,
+				},
 			});
 		})
 		.otherwise(() => {

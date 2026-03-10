@@ -1,11 +1,19 @@
 import { searchSymbols } from "../db/queries.ts";
-import type { SymbolSearchResult } from "../types.ts";
+import { parseFunctions } from "../tree-sitter/parser.ts";
+import type { SymbolResult, SymbolSearchResult } from "../types.ts";
+import { debugDb } from "../utils/logger.ts";
 import {
 	DEFAULTS,
 	parseIntFlag,
 	parseOptionalStringFlag,
 	setupCommand,
 } from "./shared.ts";
+import { resolveAbsolute } from "../utils/paths.ts";
+
+type FileGroupItem = {
+	index: number;
+	result: SymbolResult;
+};
 
 export async function symbol(
 	query: string,
@@ -21,7 +29,64 @@ export async function symbol(
 
 	const results = searchSymbols(ctx.db, query, { kind, limit });
 
-	const enhancedResults = results.map((result) => {
+	const functionKinds = new Set(["function", "method"]);
+	const fileGroups = new Map<string, FileGroupItem[]>();
+
+	for (let index = 0; index < results.length; index++) {
+		const result = results[index]!;
+		if (functionKinds.has(result.kind)) {
+			const existing = fileGroups.get(result.path);
+			if (existing) {
+				existing.push({ index, result });
+			} else {
+				fileGroups.set(result.path, [{ index, result }]);
+			}
+		}
+	}
+
+	const enhancedResults: SymbolResult[] = [...results];
+
+	for (const [filePath, items] of fileGroups) {
+		try {
+			const { functions } = await parseFunctions({
+				filePath: resolveAbsolute({ root: ctx.config.root, relativePath: filePath }),
+				config: ctx.config,
+			});
+
+			const functionsByName = new Map<string, typeof functions>();
+			for (const fnItem of functions) {
+				const existing = functionsByName.get(fnItem.name) ?? [];
+				existing.push(fnItem);
+				functionsByName.set(fnItem.name, existing);
+			}
+
+			for (const item of items) {
+				const scipLine = item.result.lines?.[0];
+				const cleanName = item.result.name.replace(/\(\)[^(]*$/, "");
+				const candidates = functionsByName.get(cleanName);
+				if (!candidates || scipLine === undefined) continue;
+
+				const best = candidates.reduce((a, b) =>
+					Math.abs(a.lines[0] - scipLine) <= Math.abs(b.lines[0] - scipLine)
+						? a
+						: b,
+				);
+
+				enhancedResults[item.index] = {
+					...item.result,
+					cyclomatic_complexity: best.cyclomatic_complexity,
+					parameters: best.parameters,
+					return_type: best.return_type,
+				};
+			}
+		} catch (error) {
+			debugDb(
+				`Tree-sitter parse failed for ${filePath}: ${error instanceof Error ? error.message : String(error)}`,
+			);
+		}
+	}
+
+	const withDocs = enhancedResults.map((result) => {
 		const symbolIdQuery = `
       SELECT s.id
       FROM symbols s
@@ -55,7 +120,7 @@ export async function symbol(
 		if (docs.length > 0) {
 			return {
 				...result,
-				documented_in: docs.map((d) => d.path),
+				documented_in: docs.map((item) => item.path),
 			};
 		}
 
@@ -64,7 +129,7 @@ export async function symbol(
 
 	const finalResult: SymbolSearchResult = {
 		query,
-		results: enhancedResults,
+		results: withDocs,
 	};
 
 	return finalResult;

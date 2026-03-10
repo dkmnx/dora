@@ -124,8 +124,7 @@ export const toolsMetadata: ToolMetadata[] = [
 			{
 				name: "kind",
 				type: "string",
-				description:
-					"Filter by symbol kind (type, class, function, interface)",
+				description: "Filter by symbol kind (type, class, function, interface)",
 				required: false,
 			},
 		],
@@ -313,8 +312,7 @@ export const toolsMetadata: ToolMetadata[] = [
 	},
 	{
 		name: "dora_cycles",
-		description:
-			"Find bidirectional dependencies (A imports B, B imports A)",
+		description: "Find bidirectional dependencies (A imports B, B imports A)",
 		arguments: [],
 		options: [
 			{
@@ -391,8 +389,7 @@ export const toolsMetadata: ToolMetadata[] = [
 			{
 				name: "recipe",
 				required: false,
-				description:
-					"Recipe name (quickstart, methods, references, exports)",
+				description: "Recipe name (quickstart, methods, references, exports)",
 			},
 		],
 		options: [
@@ -453,6 +450,110 @@ export const toolsMetadata: ToolMetadata[] = [
 				type: "boolean",
 				description: "Include full document content",
 				required: false,
+			},
+		],
+	},
+	{
+		name: "dora_fn",
+		description: "List all functions in a file with complexity metrics",
+		arguments: [
+			{
+				name: "path",
+				required: true,
+				description: "File path to analyze",
+			},
+		],
+		options: [
+			{
+				name: "sort",
+				type: "string",
+				description: "Sort by: complexity, loc, or name (default: complexity)",
+				required: false,
+			},
+			{
+				name: "minComplexity",
+				type: "number",
+				description: "Filter functions below complexity threshold",
+				required: false,
+			},
+			{
+				name: "limit",
+				type: "number",
+				description: "Maximum number of results",
+				required: false,
+			},
+		],
+	},
+	{
+		name: "dora_class",
+		description: "List all classes in a file with hierarchy and method details",
+		arguments: [
+			{
+				name: "path",
+				required: true,
+				description: "File path to analyze",
+			},
+		],
+		options: [
+			{
+				name: "sort",
+				type: "string",
+				description: "Sort by: name, methods, or complexity (default: name)",
+				required: false,
+			},
+			{
+				name: "limit",
+				type: "number",
+				description: "Maximum number of results",
+				required: false,
+			},
+		],
+	},
+	{
+		name: "dora_smells",
+		description: "Detect code smells in a file",
+		arguments: [
+			{
+				name: "path",
+				required: true,
+				description: "File path to analyze",
+			},
+		],
+		options: [
+			{
+				name: "complexityThreshold",
+				type: "number",
+				description: "Cyclomatic complexity threshold (default: 10)",
+				required: false,
+				defaultValue: 10,
+			},
+			{
+				name: "locThreshold",
+				type: "number",
+				description: "Lines of code threshold (default: 100)",
+				required: false,
+				defaultValue: 100,
+			},
+			{
+				name: "paramsThreshold",
+				type: "number",
+				description: "Parameter count threshold (default: 5)",
+				required: false,
+				defaultValue: 5,
+			},
+			{
+				name: "methodsThreshold",
+				type: "number",
+				description: "Class method count threshold for god class detection (default: 20)",
+				required: false,
+				defaultValue: 20,
+			},
+			{
+				name: "propertiesThreshold",
+				type: "number",
+				description: "Class property count threshold for large class detection (default: 15)",
+				required: false,
+				defaultValue: 15,
 			},
 		],
 	},

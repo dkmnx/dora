@@ -4,7 +4,10 @@ import {
 	getFileSymbols,
 } from "../db/queries.ts";
 import type { FileResult } from "../types.ts";
+import { parseFunctions } from "../tree-sitter/parser.ts";
+import { debugDb } from "../utils/logger.ts";
 import { resolveAndValidatePath, setupCommand } from "./shared.ts";
+import { resolveAbsolute } from "../utils/paths.ts";
 
 export async function file(path: string): Promise<FileResult> {
 	const ctx = await setupCommand();
@@ -39,11 +42,30 @@ export async function file(path: string): Promise<FileResult> {
 		}
 	}
 
+	const absolutePath = resolveAbsolute({ root: ctx.config.root, relativePath });
+	let metrics: FileResult["metrics"];
+	let functions: FileResult["functions"];
+
+	try {
+		const parseResult = await parseFunctions({
+			filePath: absolutePath,
+			config: ctx.config,
+		});
+		metrics = parseResult.metrics;
+		functions = parseResult.functions;
+	} catch (error) {
+		debugDb(
+			`Tree-sitter parse failed for ${relativePath}: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+
 	const result: FileResult = {
 		path: relativePath,
 		symbols,
 		depends_on,
 		depended_by,
+		...(metrics && { metrics }),
+		...(functions && { functions }),
 		...(documented_in && { documented_in }),
 	};
 

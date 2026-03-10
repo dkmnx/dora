@@ -1,10 +1,15 @@
 import { z } from "zod";
+import { ParameterInfoSchema } from "./treesitter.ts";
 
 export const SymbolResultSchema = z.object({
 	name: z.string(),
 	kind: z.string(),
 	path: z.string(),
 	lines: z.tuple([z.number(), z.number()]).optional(),
+	cyclomatic_complexity: z.number().optional(),
+	parameters: z.array(ParameterInfoSchema).optional(),
+	return_type: z.string().nullable().optional(),
+	documented_in: z.array(z.string()).optional(),
 });
 
 export const SymbolSearchResultSchema = z.object({

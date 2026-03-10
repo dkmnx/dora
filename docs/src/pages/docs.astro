@@ -977,13 +977,52 @@ dora index</code></pre>
             </div>
         </div>
 
+        <!-- Tree-sitter -->
+        <div class="mb-16">
+            <h2 class="text-2xl font-bold mb-6 text-blue-400">Tree-sitter Analysis</h2>
+            <p class="text-zinc-300 mb-4">
+                <code class="text-blue-300 bg-zinc-900/50 px-2 py-1 rounded">dora fn</code>,
+                <code class="text-blue-300 bg-zinc-900/50 px-2 py-1 rounded">dora class</code>, and
+                <code class="text-blue-300 bg-zinc-900/50 px-2 py-1 rounded">dora smells</code> parse source files directly using WebAssembly grammars.
+                They work without a SCIP index and run on-demand per file.
+            </p>
+            <p class="text-zinc-300 mb-4">
+                Install a grammar for your language. For TypeScript and TSX:
+            </p>
+            <div class="bg-zinc-900/50 rounded-lg p-4 font-mono text-sm space-y-2 overflow-x-auto mb-4">
+                <div><span class="text-zinc-500">$</span> <span class="text-zinc-300">bun add -g tree-sitter-typescript</span></div>
+            </div>
+            <p class="text-zinc-300 mb-4">For JavaScript and JSX:</p>
+            <div class="bg-zinc-900/50 rounded-lg p-4 font-mono text-sm space-y-2 overflow-x-auto mb-4">
+                <div><span class="text-zinc-500">$</span> <span class="text-zinc-300">bun add -g tree-sitter-javascript</span></div>
+            </div>
+            <p class="text-zinc-300 mb-4">
+                dora discovers grammars automatically from local <code class="text-blue-300 bg-zinc-900/50 px-2 py-1 rounded">node_modules</code>,
+                global bun packages, or an explicit path in <code class="text-blue-300 bg-zinc-900/50 px-2 py-1 rounded">.dora/config.json</code>:
+            </p>
+            <pre class="bg-zinc-900/50 rounded-lg p-4 font-mono text-sm overflow-x-auto mb-4"><code class="text-zinc-300">{`{
+  "treeSitter": {
+    "grammars": {
+      "typescript": "/path/to/tree-sitter-typescript.wasm"
+    }
+  }
+}`}</code></pre>
+            <p class="text-zinc-400 text-sm">
+                Run <code class="text-blue-300 bg-zinc-900/50 px-1 rounded">dora status</code> to see which grammars are available.
+            </p>
+        </div>
+
         <!-- Output Format -->
         <div class="mb-16">
             <h2 class="text-2xl font-bold mb-6 text-blue-400">Output Format</h2>
-            <p class="text-zinc-300">
-                All commands output valid JSON to stdout. Errors go to stderr
-                with exit code 1.
+            <p class="text-zinc-300 mb-4">
+                All commands output <a href="https://github.com/toon-format/toon" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">TOON</a> (Token-Oriented Object Notation) by default — a compact JSON encoding optimized for LLM token usage. Pass <code class="text-blue-300 bg-zinc-900/50 px-2 py-1 rounded">--json</code> for standard JSON output.
             </p>
+            <div class="bg-zinc-900/50 rounded-lg p-4 font-mono text-sm space-y-2 overflow-x-auto">
+                <div><span class="text-zinc-500">$</span> <span class="text-zinc-300">dora status</span><span class="text-zinc-500 ml-4"># TOON output</span></div>
+                <div><span class="text-zinc-500">$</span> <span class="text-zinc-300">dora status --json</span><span class="text-zinc-500 ml-4"># JSON output</span></div>
+            </div>
+            <p class="text-zinc-400 mt-3 text-sm">Errors always go to stderr as JSON with exit code 1.</p>
         </div>
 
         <!-- Debug Logging -->
@@ -1286,10 +1325,10 @@ dora index</code></pre>
             <p class="text-zinc-400 mt-4 text-sm">
                 For detailed architecture and development guidelines, see
                 <a
-                    href="https://github.com/butttons/dora/blob/main/CLAUDE.md"
+                    href="https://github.com/butttons/dora/blob/main/AGENTS.md"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="text-blue-400 hover:underline">CLAUDE.md</a
+                    class="text-blue-400 hover:underline">AGENTS.md</a
                 >.
             </p>
         </div>

@@ -5,39 +5,53 @@ import {
 	getFileCount,
 	getSymbolCount,
 } from "../db/queries.ts";
+import { findGrammarPath } from "../tree-sitter/grammar.ts";
+import { languageRegistry } from "../tree-sitter/languages/registry.ts";
 import type { StatusResult } from "../types.ts";
 import { isIndexed, loadConfig } from "../utils/config.ts";
 
 export async function status(): Promise<StatusResult> {
 	const config = await loadConfig();
-
-	// Check if indexed
-	const indexed = await isIndexed(config);
+	const isIndexedRepo = await isIndexed(config);
 
 	const result: StatusResult = {
-		initialized: true, // If we got here, it's initialized
-		indexed,
+		initialized: true,
+		indexed: isIndexedRepo,
 	};
 
-	// If indexed, get stats
-	if (indexed) {
+	if (isIndexedRepo) {
 		try {
 			const db = getDb(config);
 			result.file_count = getFileCount(db);
 			result.symbol_count = getSymbolCount(db);
 			result.last_indexed = config.lastIndexed;
 
-			// Add document statistics
 			const documentCount = getDocumentCount(db);
 			if (documentCount > 0) {
 				result.document_count = documentCount;
 				result.documents_by_type = getDocumentCountsByType(db);
 			}
-		} catch (error) {
-			// Database might be corrupt, but we can still report it exists
+		} catch {
 			result.indexed = false;
 		}
 	}
+
+	const grammarResults = await Promise.all(
+		Object.keys(languageRegistry).map(async (lang) => {
+			try {
+				const grammarPath = await findGrammarPath({
+					lang,
+					config,
+					projectRoot: config.root,
+				});
+				return { language: lang, available: true, grammar_path: grammarPath };
+			} catch {
+				return { language: lang, available: false, grammar_path: null };
+			}
+		}),
+	);
+
+	result.tree_sitter = { grammars: grammarResults };
 
 	return result;
 }

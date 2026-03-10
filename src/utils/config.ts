@@ -42,6 +42,10 @@ export const LanguageSchema = z.enum([
 
 export type Language = z.infer<typeof LanguageSchema>;
 
+const TreeSitterSchema = z.object({
+	grammars: z.record(z.string(), z.string()).optional(),
+});
+
 const ConfigSchema = z.object({
 	root: z.string().min(1),
 	scip: z.string().min(1),
@@ -55,6 +59,7 @@ const ConfigSchema = z.object({
 	lastIndexed: z.string().nullable(),
 	indexState: IndexStateSchema.optional(),
 	ignore: z.array(z.string()).optional(),
+	treeSitter: TreeSitterSchema.optional(),
 });
 
 // Export types inferred from schemas
@@ -134,8 +139,10 @@ export function validateConfig(data: unknown): Config {
  * Detect package manager and workspace type based on lock files
  */
 function detectWorkspaceType(root: string): "bun" | "pnpm" | "yarn" | null {
-	// Check for Bun first (bun.lockb)
-	if (existsSync(join(root, "bun.lockb"))) {
+	if (
+		existsSync(join(root, "bun.lockb")) ||
+		existsSync(join(root, "bun.lock"))
+	) {
 		return "bun";
 	}
 
